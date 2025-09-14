@@ -23,8 +23,7 @@ ENDR
 	dw .Ice
 	dw .Dragon
   dw .Dark
-
-	assert_table_length NUM_TYPES
+  assert_table_length NUM_TYPES
 
 .Normal:   db "NORMAL@"
 .Fighting: db "FIGHTING@"
