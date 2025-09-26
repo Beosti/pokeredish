@@ -1,7 +1,7 @@
 SECTION "bank1", ROMX
 
 
-INCLUDE "data/pokemon/abilities_mons.asm"
+
 INCLUDE "data/sprites/facings.asm"
 INCLUDE "engine/events/black_out.asm"
 INCLUDE "data/pokemon/mew.asm"
@@ -356,3 +356,7 @@ INCLUDE "data/battle_anims/frame_blocks.asm"
 INCLUDE "engine/movie/evolution.asm"
 INCLUDE "engine/overworld/elevator.asm"
 INCLUDE "engine/items/tm_prices.asm"
+
+; non vanilla additions
+INCLUDE "home/ability_helpers.asm"
+INCLUDE "data/pokemon/abilities_mons.asm"

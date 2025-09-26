@@ -5204,8 +5204,8 @@ IncrementMovePP:
 ; function to adjust the base damage of an attack to account for type effectiveness
 AdjustDamageForMoveType:
 ; values for player turn
-	ld hl, wBattleMonType
-	ld a, [hli]
+	ld hl, wBattleMonType ; hl = to the types of the attacking pokemon; wBattleMonType is in the RAM as the player's active pokémon type
+	ld a, [hli] ; a = base hl value (first pokemon type) THEN increments hl and makes hl = type 2
 	ld b, a    ; b = type 1 of attacker
 	ld c, [hl] ; c = type 2 of attacker
 	ld hl, wEnemyMonType
@@ -5213,10 +5213,10 @@ AdjustDamageForMoveType:
 	ld d, a    ; d = type 1 of defender
 	ld e, [hl] ; e = type 2 of defender
 	ld a, [wPlayerMoveType]
-	ld [wMoveType], a
-	ldh a, [hWhoseTurn]
-	and a
-	jr z, .next
+	ld [wMoveType], a ; wMoveType = type of currently used move (stored in RAM) tl;dr stores the currently using move into [wMoveType]
+	ldh a, [hWhoseTurn] ; wHoseTurn = when it's somebodys turn (0 is player; 1 is ennemy)
+	and a ; check if it's player's turns
+	jr z, .next ; if it was player's turn then go .next if not continue code
 ; values for enemy turn
 	ld hl, wEnemyMonType
 	ld a, [hli]
@@ -5271,10 +5271,10 @@ AdjustDamageForMoveType:
 	jr .nextTypePair
 .matchingPairFound
 ; if the move type matches the "attacking type" and one of the defender's types matches the "defending type"
-	push hl
-	push bc
-	inc hl
-	ld a, [wDamageMultipliers]
+	push hl ; put hl on the stack
+	push bc ; put bc on the stack
+	inc hl ; now points to the multiplier => hl = DEFENDER -> MULTIPLIER (see table)
+	ld a, [wDamageMultipliers] ; is stab applied yes or no? see .sameTypeAttackBonus
 	and 1 << BIT_STAB_DAMAGE
 	ld b, a
 	ld a, [hl] ; a = damage multiplier
@@ -5299,7 +5299,17 @@ AdjustDamageForMoveType:
 	ldh a, [hQuotient + 3]
 	ld [hl], a
 	or b ; is damage 0?
-	jr nz, .skipTypeImmunity
+
+  ; LEVITATE ABILITY
+  ld a, [wMoveType] ; register moveType
+  cp GROUND ; check if it's ground move
+  jr nz, .skipTypeImmunity ; if not go skip type immunity
+  call GetDefenderSpecies ; get species defender
+  call GetAbilitySpecies
+  cp ABILITY_LEVITATE
+  ;cp GASTLY ; check if it's gastly
+  jr z, .typeImmunity ; if it is then type immunity 
+
 .typeImmunity
 ; if damage is 0, make the move miss
 ; this only occurs if a move that would do 2 or 3 damage is 0.25x effective against the target
@@ -5314,6 +5324,25 @@ AdjustDamageForMoveType:
 	jp .loop
 .done
 	ret
+
+GetAbilitySpecies::
+  dec a
+  ld e, a
+  ld d, 0
+  ld hl, MonAbilities
+  add hl, de
+  ld a, [hl]
+  ret
+
+GetDefenderSpecies::
+  ldh a, [hWhoseTurn]
+  and a
+  jr z, .enemyDefender
+  ld a, [wBattleMonSpecies]
+  ret
+.enemyDefender
+  ld a, [wEnemyMonSpecies]
+  ret
 
 ; function to tell how effective the type of an enemy attack is on the player's current pokemon
 ; this doesn't take into account the effects that dual types can have
@@ -5388,11 +5417,11 @@ MoveHitTest:
 	cp DREAM_EATER_EFFECT
 	jp z, .moveMissed
 .checkForDigOrFlyStatus
-	bit INVULNERABLE, [hl]
-	jp nz, .moveMissed
-	ldh a, [hWhoseTurn]
-	and a
-	jr nz, .enemyTurn
+  bit INVULNERABLE, [hl]
+  jp nz, .moveMissed
+  ldh a, [hWhoseTurn]
+  and a
+  jr nz, .enemyTurn
 .playerTurn
 ; this checks if the move effect is disallowed by mist
 	ld a, [wPlayerMoveEffect]

@@ -1,6 +1,7 @@
 ; data/pokemon/abilities_mons.asm
 ; one byte per species in Pokédex order
 ; 0 = ABILITY_NONE for species with no ability
+SECTION "Mon Abilities", ROMX, BANK[$3F]
 
 MonAbilities::
   db ABILITY_NONE

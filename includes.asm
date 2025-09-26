@@ -13,6 +13,8 @@ INCLUDE "macros/scripts/maps.asm"
 INCLUDE "macros/scripts/events.asm"
 INCLUDE "macros/scripts/text.asm"
 
+
+
 INCLUDE "constants/charmap.asm"
 INCLUDE "constants/hardware.inc"
 INCLUDE "constants/oam_constants.asm"
@@ -49,6 +51,7 @@ INCLUDE "constants/tileset_constants.asm"
 INCLUDE "constants/event_constants.asm"
 INCLUDE "constants/text_constants.asm"
 INCLUDE "constants/menu_constants.asm"
+INCLUDE "constants/ability_constants.asm"
 
 IF DEF(_RED_VC)
 INCLUDE "vc/pokered.constants.asm"
